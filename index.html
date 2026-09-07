@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kalkulator Zakat Penyelenggara Zakat & Wakaf Kemenag Kobar</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      /* GANTI "background.jpg" DENGAN NAMA FILE BACKGROUND ANDA YANG SEBENARNYA. Pastikan file berada di folder yang sama. */
+      background-image: url('bacground.jpeg'); 
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4 bg-emerald-900/50" id="mainBody">
+
+  <div class="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-6 md:p-8 w-full max-w-xl my-8">
+    
+    <div class="text-center mb-6">
+      <!-- TANDA KURUNG SIKU PADA src="Logo_Kemenag.png" TELAH DIHAPUS -->
+      <img id="logoInstansi" src="Logo_Kemenag.png" alt="Logo Instansi" class="h-20 mx-auto mb-3 object-contain rounded-lg">
+      <h1 class="text-2xl md:text-3xl font-bold text-emerald-800">
+        Kalkulator Zakat<br>
+        <span class="text-xl md:text-2xl">Penzawa Kemenag Kobar</span>
+      </h1>
+      <p class="text-sm text-gray-600 mt-2">Hitung Zakat Fitrah & Zakat Maal Anda dengan Mudah</p>
+    </div>
+
+    <div class="flex border-b border-gray-200 mb-6">
+      <button id="btnFitrah" onclick="switchTab('fitrah')" class="w-1/2 py-2 px-4 text-center font-semibold text-emerald-600 border-b-2 border-emerald-600 focus:outline-none transition-colors">
+        Zakat Fitrah
+      </button>
+      <button id="btnMal" onclick="switchTab('mal')" class="w-1/2 py-2 px-4 text-center font-semibold text-gray-500 hover:text-emerald-600 focus:outline-none transition-colors">
+        Zakat Maal
+      </button>
+    </div>
+
+    <div id="tabFitrah" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah Jiwa (Orang)</label>
+        <input type="number" id="jumlahJiwa" min="1" value="1" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Harga Beras per Kg (Rp)</label>
+        <input type="text" id="hargaBeras" onkeyup="onInputRupiah(this); saveSettings()" placeholder="Contoh: 15.000" value="15.000" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+        <span class="text-xs text-gray-500 block mt-1">*Dapat disesuaikan manual dengan harga beras yang dikonsumsi sehari-hari</span>
+        <span class="text-xs text-gray-500 block">*Mengikuti madzhab syafi’iyah / Imam Romli (2,7 Kg)</span>
+      </div>
+      
+      <div class="flex gap-2">
+        <button onclick="hitungFitrah()" class="w-2/3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-lg transition duration-200">
+          Hitung Zakat
+        </button>
+        <button onclick="resetForm()" class="w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2.5 rounded-lg transition duration-200">
+          Reset
+        </button>
+      </div>
+
+      <div id="hasilFitrah" class="hidden mt-4 p-4 bg-emerald-50 border border-emerald-200 rounded-lg text-center transition-all">
+        <p class="text-sm text-emerald-800 font-medium">Beras yang harus dikeluarkan:</p>
+        <p id="resBerasKg" class="text-xl font-bold text-emerald-900 my-1">-</p>
+        <p class="text-sm text-emerald-800 font-medium">Atau setara dengan uang:</p>
+        <p id="resBerasRp" class="text-2xl font-extrabold text-emerald-700 my-1">-</p>
+      </div>
+    </div>
+
+    <div id="tabMal" class="hidden space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Jenis Zakat Maal</label>
+        <select id="jenisMaal" onchange="updateFormMaal()" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-emerald-50">
+          <option value="emas">1. Emas dan Perak</option>
+          <option value="perdagangan">2. Perdagangan</option>
+          <option value="pertanian">3. Pertanian & Perkebunan</option>
+          <option value="simpanan">4. Simpanan di Lembaga Keuangan</option>
+          <option value="profesi">5. Zakat Profesi / Pendapatan</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Harga Emas per Gram Saat Ini (Rp)</label>
+        <input type="text" id="hargaEmas" onkeyup="onInputRupiah(this); saveSettings()" placeholder="Contoh: 1.300.000" value="1.300.000" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+        <span class="text-xs text-gray-500 block mt-1">*Harga emas murni 24 karat</span>
+      </div>
+
+      <div id="inputStandar">
+        <label id="labelHarta" class="block text-sm font-medium text-gray-700 mb-1">Total Berat Emas / Perak (Gram)</label>
+        <input type="number" id="totalHarta" placeholder="Contoh: 100" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+        <span id="hintHarta" class="text-xs text-gray-500">*Telah mencapai haul 1 tahun (Input dalam bentuk angka gram)</span>
+      </div>
+
+      <div id="inputPertanian" class="hidden space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Nilai Rupiah Keseluruhan Hasil Panen (Rp)</label>
+          <input type="text" id="nilaiPanen" onkeyup="onInputRupiah(this)" placeholder="Contoh: 20.000.000" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Harga Gabah / Makanan Pokok per Kg (Rp)</label>
+          <input type="text" id="hargaGabah" onkeyup="onInputRupiah(this)" placeholder="Contoh: 6.000" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          <span class="text-xs text-gray-500">*Untuk menghitung Nisab (Setara 653 Kg)</span>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Sistem Pengairan</label>
+          <select id="pengairan" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+            <option value="0.05">Pengairan Buatan / Berbayar (Kadar 5%)</option>
+            <option value="0.10">Pengairan Alami / Tadah Hujan (Kadar 10%)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="flex gap-2 mt-4">
+        <button onclick="hitungMal()" class="w-2/3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-lg transition duration-200">
+          Hitung Zakat
+        </button>
+        <button onclick="resetForm()" class="w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2.5 rounded-lg transition duration-200">
+          Reset
+        </button>
+      </div>
+
+      <div id="hasilMal" class="hidden mt-4 p-4 bg-emerald-50 border border-emerald-200 rounded-lg text-center transition-all">
+        <p id="statusNisab" class="text-sm font-semibold mb-1"></p>
+        <p id="resMalRp" class="text-2xl font-extrabold text-emerald-700 my-1">-</p>
+        <p id="detailNisab" class="text-xs text-gray-600 mt-2"></p>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Format Rupiah saat mengetik
+    function onInputRupiah(e) {
+      let value = e.value.replace(/[^,\d]/g, '');
+      let split = value.split(',');
+      let sisa = split[0].length % 3;
+      let rupiah = split[0].substr(0, sisa);
+      let ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+      
+      if(ribuan){
+        let separator = sisa ? '.' : '';
+        rupiah += separator + ribuan.join('.');
+      }
+      rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+      e.value = rupiah;
+    }
+
+    // Mengubah string format Rupiah kembali ke angka desimal
+    function parseRupiah(str) {
+      if (!str) return 0;
+      return parseFloat(str.replace(/\./g, '')) || 0;
+    }
+
+    // Fitur Pendukung: Menyimpan harga ke LocalStorage browser
+    function saveSettings() {
+      const hBeras = document.getElementById('hargaBeras').value;
+      const hEmas = document.getElementById('hargaEmas').value;
+      localStorage.setItem('savedHargaBeras', hBeras);
+      localStorage.setItem('savedHargaEmas', hEmas);
+    }
+
+    // Load data saat halaman pertama kali dibuka
+    window.onload = function() {
+      // Cek apakah ada data tersimpan di LocalStorage (Pengganti Google Script)
+      const savedBeras = localStorage.getItem('savedHargaBeras');
+      const savedEmas = localStorage.getItem('savedHargaEmas');
+      
+      if (savedBeras) document.getElementById('hargaBeras').value = savedBeras;
+      if (savedEmas) document.getElementById('hargaEmas').value = savedEmas;
+
+      updateFormMaal();
+    };
+
+    // Fungsi pindah Tab
+    function switchTab(tab) {
+      const btnFitrah = document.getElementById('btnFitrah');
+      const btnMal = document.getElementById('btnMal');
+      const tabFitrah = document.getElementById('tabFitrah');
+      const tabMal = document.getElementById('tabMal');
+
+      if (tab === 'fitrah') {
+        tabFitrah.classList.remove('hidden');
+        tabMal.classList.add('hidden');
+        btnFitrah.className = "w-1/2 py-2 px-4 text-center font-semibold text-emerald-600 border-b-2 border-emerald-600 focus:outline-none transition-colors";
+        btnMal.className = "w-1/2 py-2 px-4 text-center font-semibold text-gray-500 hover:text-emerald-600 focus:outline-none transition-colors";
+      } else {
+        tabMal.classList.remove('hidden');
+        tabFitrah.classList.add('hidden');
+        btnMal.className = "w-1/2 py-2 px-4 text-center font-semibold text-emerald-600 border-b-2 border-emerald-600 focus:outline-none transition-colors";
+        btnFitrah.className = "w-1/2 py-2 px-4 text-center font-semibold text-gray-500 hover:text-emerald-600 focus:outline-none transition-colors";
+      }
+    }
+
+    // Format Rupiah untuk hasil akhir
+    function formatRupiahTampil(angka) {
+      return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka);
+    }
+
+    // Update Label Form Maal secara dinamis
+    function updateFormMaal() {
+      const jenis = document.getElementById('jenisMaal').value;
+      const inputStandar = document.getElementById('inputStandar');
+      const inputPertanian = document.getElementById('inputPertanian');
+      const labelHarta = document.getElementById('labelHarta');
+      const hintHarta = document.getElementById('hintHarta');
+      const inputHarta = document.getElementById('totalHarta');
+
+      document.getElementById('hasilMal').classList.add('hidden');
+      inputHarta.value = ""; 
+
+      if (jenis === 'pertanian') {
+        inputStandar.classList.add('hidden');
+        inputPertanian.classList.remove('hidden');
+      } else {
+        inputStandar.classList.remove('hidden');
+        inputPertanian.classList.add('hidden');
+
+        if (jenis === 'emas') {
+          labelHarta.innerText = "Total Berat Emas / Perak (Gram)";
+          hintHarta.innerText = "*Telah mencapai haul 1 tahun (Input angka gram)";
+          inputHarta.type = 'number';
+          inputHarta.setAttribute('onkeyup', '');
+          inputHarta.placeholder = "Contoh: 100";
+        } else {
+          inputHarta.type = 'text';
+          inputHarta.setAttribute('onkeyup', 'onInputRupiah(this)');
+          inputHarta.placeholder = "Contoh: 10.000.000";
+
+          if (jenis === 'profesi') {
+            labelHarta.innerText = "Total Penghasilan Kotor (Rp)";
+            hintHarta.innerText = "*Pendapatan kotor dalam satu bulan / setahun";
+          } else if (jenis === 'perdagangan') {
+            labelHarta.innerText = "Modal + Keuntungan Bersih (Rp)";
+            hintHarta.innerText = "*Telah mencapai haul 1 tahun";
+          } else if (jenis === 'simpanan') {
+            labelHarta.innerText = "Saldo Akhir Tahun (Rp)";
+            hintHarta.innerText = "";
+          }
+        }
+      }
+    }
+
+    // Logika Hitung Fitrah
+    function hitungFitrah() {
+      const jiwa = parseFloat(document.getElementById('jumlahJiwa').value) || 0;
+      const hargaBerasManual = parseRupiah(document.getElementById('hargaBeras').value); 
+      
+      if (jiwa <= 0 || hargaBerasManual <= 0) return alert("Mohon masukkan data yang valid.");
+
+      const berasKg = jiwa * 2.7; 
+      const totalUang = berasKg * hargaBerasManual;
+
+      document.getElementById('resBerasKg').innerText = berasKg.toFixed(1) + " Kg Beras";
+      document.getElementById('resBerasRp').innerText = formatRupiahTampil(totalUang);
+      document.getElementById('hasilFitrah').classList.remove('hidden');
+    }
+
+    // Logika Hitung Maal
+    function hitungMal() {
+      const jenis = document.getElementById('jenisMaal').value;
+      const hargaEmas = parseRupiah(document.getElementById('hargaEmas').value);
+      
+      if (hargaEmas <= 0) return alert("Mohon masukkan harga emas saat ini.");
+
+      const statusNisab = document.getElementById('statusNisab');
+      const resMalRp = document.getElementById('resMalRp');
+      const detailNisabInfo = document.getElementById('detailNisab');
+
+      let nisab = 0;
+      let kadar = 0.025;
+      let totalNilai = 0;
+      let wajibZakat = false;
+      let zakatWajib = 0;
+
+      if (jenis === 'pertanian') {
+        const nilaiPanen = parseRupiah(document.getElementById('nilaiPanen').value);
+        const hargaGabah = parseRupiah(document.getElementById('hargaGabah').value);
+        const pengairan = parseFloat(document.getElementById('pengairan').value);
+        
+        if (hargaGabah <= 0) return alert("Mohon masukkan harga gabah.");
+
+        nisab = 653 * hargaGabah; 
+        kadar = pengairan;
+        totalNilai = nilaiPanen;
+
+        detailNisabInfo.innerText = `Nisab (Setara 653 kg gabah) = ${formatRupiahTampil(nisab)}`;
+
+        if (totalNilai >= nisab) {
+          wajibZakat = true;
+          zakatWajib = totalNilai * kadar;
+        }
+      } else if (jenis === 'emas') {
+        const totalGram = parseFloat(document.getElementById('totalHarta').value) || 0;
+        nisab = 85; 
+        detailNisabInfo.innerText = `Nisab (Setara 85 gram emas)`;
+
+        if (totalGram >= nisab) {
+          wajibZakat = true;
+          zakatWajib = (totalGram * kadar) * hargaEmas; 
+        }
+      } else {
+        totalNilai = parseRupiah(document.getElementById('totalHarta').value);
+        
+        if (jenis === 'profesi') {
+          nisab = 7.1 * hargaEmas; // Nisab profesi setara 85 gram per tahun / 7.1 per bulan (estimasi standar)
+          detailNisabInfo.innerText = `Nisab (Setara 7,1 gram emas) = ${formatRupiahTampil(nisab)}`;
+        } else {
+          nisab = 85 * hargaEmas;
+          detailNisabInfo.innerText = `Nisab (Setara 85 gram emas) = ${formatRupiahTampil(nisab)}`;
+        }
+
+        if (totalNilai >= nisab) {
+          wajibZakat = true;
+          zakatWajib = totalNilai * kadar;
+        }
+      }
+
+      if (wajibZakat) {
+        statusNisab.innerText = "Wajib Membayar Zakat Maal:";
+        statusNisab.className = "text-sm font-semibold text-emerald-800";
+        resMalRp.innerText = formatRupiahTampil(zakatWajib);
+        resMalRp.className = "text-2xl font-extrabold text-emerald-700 my-1";
+      } else {
+        statusNisab.innerText = "Belum Wajib Zakat (Belum Mencapai Nisab)";
+        statusNisab.className = "text-sm font-semibold text-amber-700";
+        resMalRp.innerText = "Rp 0";
+        resMalRp.className = "text-2xl font-extrabold text-amber-600 my-1";
+      }
+
+      document.getElementById('hasilMal').classList.remove('hidden');
+    }
+
+    // Fitur Pendukung: Fungsi Reset
+    function resetForm() {
+      document.getElementById('jumlahJiwa').value = "1";
+      document.getElementById('totalHarta').value = "";
+      document.getElementById('nilaiPanen').value = "";
+      document.getElementById('hargaGabah').value = "";
+      document.getElementById('hasilFitrah').classList.add('hidden');
+      document.getElementById('hasilMal').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
