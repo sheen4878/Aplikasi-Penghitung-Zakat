@@ -100,15 +100,23 @@
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Jenis Zakat Maal</label>
         <select id="jenisMaal" onchange="updateFormMaal()" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-emerald-50 transition-all font-medium">
-          <option value="emas">🥇 1. Emas</option>
-          <option value="perak">🥈 2. Perak</option>
-          <option value="perdagangan">⚖️ 3. Perdagangan</option>
-          <option value="pertanian">🌾 4. Pertanian & Perkebunan</option>
-          <option value="simpanan">🏦 5. Simpanan di Lembaga Keuangan</option>
-          <option value="profesi">💼 6. Profesi / Pendapatan</option>
-          <option value="peternakan">🐄 7. Peternakan</option>
-          <option value="temuan">🏺 8. Harta Temuan (Rikaz)</option>
-          <option value="tambang">⛏️ 9. Hasil Tambang</option>
+          <option value="emasPerak">🥇 1. Emas dan Perak</option>
+          <option value="perdagangan">⚖️ 2. Perdagangan</option>
+          <option value="pertanian">🌾 3. Pertanian & Perkebunan</option>
+          <option value="simpanan">🏦 4. Simpanan di Lembaga Keuangan</option>
+          <option value="profesi">💼 5. Profesi / Pendapatan</option>
+          <option value="peternakan">🐄 6. Peternakan</option>
+          <option value="temuan">🏺 7. Harta Temuan (Rikaz)</option>
+          <option value="tambang">⛏️ 8. Hasil Tambang</option>
+        </select>
+      </div>
+
+      <!-- Pilihan Sub-Kategori Khusus Emas & Perak -->
+      <div id="wrapperSubLogam" class="space-y-1 fade-in">
+        <label class="block text-sm font-medium text-gray-700">Pilih Jenis Logam Mulia</label>
+        <select id="subLogam" onchange="updateFormMaal()" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-emerald-50 transition-all font-medium">
+          <option value="emas">Emas (Nisab: 85 Gram)</option>
+          <option value="perak">Perak (Nisab: 595 Gram)</option>
         </select>
       </div>
 
@@ -253,8 +261,10 @@
 
     function updateFormMaal() {
       const jenis = document.getElementById('jenisMaal').value;
+      const subLogam = document.getElementById('subLogam').value;
       const inputStandar = document.getElementById('inputStandar');
       const inputPertanian = document.getElementById('inputPertanian');
+      const wrapperSubLogam = document.getElementById('wrapperSubLogam');
       const wrapperHargaEmas = document.getElementById('wrapperHargaEmas');
       const wrapperHargaPerak = document.getElementById('wrapperHargaPerak');
       const wrapperJenisHewan = document.getElementById('wrapperJenisHewan');
@@ -268,19 +278,28 @@
          inputHarta.value = ""; 
       }
 
-      // Mengatur visibilitas input harga emas
-      if (['emas', 'perdagangan', 'simpanan', 'profesi'].includes(jenis)) {
-          wrapperHargaEmas.classList.remove('hidden');
-          triggerFadeIn('wrapperHargaEmas');
+      // Tampilkan pilihan sub-kategori logam jika zakat emasPerak dipilih
+      if (jenis === 'emasPerak') {
+          wrapperSubLogam.classList.remove('hidden');
+          triggerFadeIn('wrapperSubLogam');
       } else {
-          wrapperHargaEmas.classList.add('hidden');
+          wrapperSubLogam.classList.add('hidden');
       }
 
-      // Mengatur visibilitas input harga perak
-      if (jenis === 'perak') {
-          wrapperHargaPerak.classList.remove('hidden');
-          triggerFadeIn('wrapperHargaPerak');
+      // Pengaturan visibilitas input harga dan jenis logam
+      if (jenis === 'emasPerak') {
+          if (subLogam === 'emas') {
+              wrapperHargaEmas.classList.remove('hidden');
+              wrapperHargaPerak.classList.add('hidden');
+          } else {
+              wrapperHargaEmas.classList.add('hidden');
+              wrapperHargaPerak.classList.remove('hidden');
+          }
+      } else if (['perdagangan', 'simpanan', 'profesi'].includes(jenis)) {
+          wrapperHargaEmas.classList.remove('hidden');
+          wrapperHargaPerak.classList.add('hidden');
       } else {
+          wrapperHargaEmas.classList.add('hidden');
           wrapperHargaPerak.classList.add('hidden');
       }
 
@@ -300,18 +319,18 @@
         inputPertanian.classList.add('hidden');
         triggerFadeIn('inputStandar');
 
-        if (jenis === 'emas') {
-          labelHarta.innerText = "Total Berat Emas (Gram)";
-          hintHarta.innerText = "*Telah mencapai haul 1 tahun (Nisab 85 gram)";
+        if (jenis === 'emasPerak') {
+          if (subLogam === 'emas') {
+            labelHarta.innerText = "Total Berat Emas (Gram)";
+            hintHarta.innerText = "*Telah mencapai haul 1 tahun (Nisab 85 gram)";
+            inputHarta.placeholder = "Contoh: 100";
+          } else {
+            labelHarta.innerText = "Total Berat Perak (Gram)";
+            hintHarta.innerText = "*Telah mencapai haul 1 tahun (Nisab 595 gram)";
+            inputHarta.placeholder = "Contoh: 600";
+          }
           inputHarta.type = 'number';
           inputHarta.setAttribute('onkeyup', '');
-          inputHarta.placeholder = "Contoh: 100";
-        } else if (jenis === 'perak') {
-          labelHarta.innerText = "Total Berat Perak (Gram)";
-          hintHarta.innerText = "*Telah mencapai haul 1 tahun (Nisab 595 gram)";
-          inputHarta.type = 'number';
-          inputHarta.setAttribute('onkeyup', '');
-          inputHarta.placeholder = "Contoh: 600";
         } else if (jenis === 'peternakan') {
           const jenisHewan = document.getElementById('jenisHewan').value;
           labelHarta.innerText = `Total Jumlah ${jenisHewan.charAt(0).toUpperCase() + jenisHewan.slice(1)} (Ekor)`;
@@ -367,15 +386,15 @@
 
     function hitungMal() {
       const jenis = document.getElementById('jenisMaal').value;
+      const subLogam = document.getElementById('subLogam').value;
       const hargaEmas = parseRupiah(document.getElementById('hargaEmas').value);
       const hargaPerak = parseRupiah(document.getElementById('hargaPerak').value);
       
-      if (['emas', 'perdagangan', 'simpanan', 'profesi'].includes(jenis) && hargaEmas <= 0) {
+      if (jenis === 'emasPerak') {
+        if (subLogam === 'emas' && hargaEmas <= 0) return alert("Mohon masukkan harga emas saat ini.");
+        if (subLogam === 'perak' && hargaPerak <= 0) return alert("Mohon masukkan harga perak saat ini.");
+      } else if (['perdagangan', 'simpanan', 'profesi'].includes(jenis) && hargaEmas <= 0) {
         return alert("Mohon masukkan harga emas saat ini.");
-      }
-
-      if (jenis === 'perak' && hargaPerak <= 0) {
-        return alert("Mohon masukkan harga perak saat ini.");
       }
 
       const statusNisab = document.getElementById('statusNisab');
@@ -485,23 +504,22 @@
             zakatWajib = totalNilai * 0.10;
             detailNisabInfo.innerText = "Nisab: Hasil tambang itu sendiri | Haul: Saat ditambang";
         }
-      } else if (jenis === 'emas') {
+      } else if (jenis === 'emasPerak') {
         const totalGram = parseFloat(document.getElementById('totalHarta').value) || 0;
-        nisab = 85; 
-        detailNisabInfo.innerText = `Nisab (Setara 85 gram emas)`;
-
-        if (totalGram >= nisab) {
-          wajibZakat = true;
-          zakatWajib = (totalGram * kadar) * hargaEmas; 
-        }
-      } else if (jenis === 'perak') {
-        const totalGramPerak = parseFloat(document.getElementById('totalHarta').value) || 0;
-        nisab = 595; 
-        detailNisabInfo.innerText = `Nisab (Setara 595 gram perak)`;
-
-        if (totalGramPerak >= nisab) {
-          wajibZakat = true;
-          zakatWajib = (totalGramPerak * kadar) * hargaPerak; 
+        if (subLogam === 'emas') {
+          nisab = 85; 
+          detailNisabInfo.innerText = `Nisab Emas (Setara 85 gram)`;
+          if (totalGram >= nisab) {
+            wajibZakat = true;
+            zakatWajib = (totalGram * kadar) * hargaEmas; 
+          }
+        } else {
+          nisab = 595; 
+          detailNisabInfo.innerText = `Nisab Perak (Setara 595 gram)`;
+          if (totalGram >= nisab) {
+            wajibZakat = true;
+            zakatWajib = (totalGram * kadar) * hargaPerak; 
+          }
         }
       } else {
         totalNilai = parseRupiah(document.getElementById('totalHarta').value);
