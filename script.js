@@ -8,23 +8,22 @@ function triggerFadeIn(elementId) {
 }
 
 function onInputRupiah(e) {
-  let value = e.value.replace(/[^,\d]/g, '');
-  let split = value.split(',');
-  let sisa = split[0].length % 3;
-  let rupiah = split[0].substr(0, sisa);
-  let ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+  // Hapus semua karakter selain angka (termasuk titik dan koma yang berantakan)
+  let angka = e.value.replace(/\D/g, '');
   
-  if(ribuan){
-    let separator = sisa ? '.' : '';
-    rupiah += separator + ribuan.join('.');
+  if (!angka) {
+    e.value = '';
+    return;
   }
-  rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
-  e.value = rupiah;
+  
+  // Format ulang dengan titik sebagai pemisah ribuan
+  e.value = angka.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
 function parseRupiah(str) {
   if (!str) return 0;
-  return parseFloat(str.replace(/\./g, '')) || 0;
+  // Saat menghitung, bersihkan kembali semua titik/koma agar hanya angka yang dikalkulasi
+  return parseFloat(str.replace(/\D/g, '')) || 0;
 }
 
 function saveSettings() {
