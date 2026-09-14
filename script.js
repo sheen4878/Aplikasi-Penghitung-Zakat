@@ -122,7 +122,7 @@ window.onload = function() {
   if (savedEmas && document.getElementById('hargaEmas')) document.getElementById('hargaEmas').value = savedEmas;
   if (savedPerak && document.getElementById('hargaPerak')) document.getElementById('hargaPerak').value = savedPerak;
 
-  updateFormMaal();
+  updateFormMaal(null);
 };
 
 function switchTab(tab) {
@@ -150,7 +150,7 @@ function formatRupiahTampil(angka) {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka);
 }
 
-function updateFormMaal(eventObj) {
+function updateFormMaal(evt = null) {
   const jenis = document.getElementById('jenisMaal').value;
   const subLogam = document.getElementById('subLogam').value;
   const inputStandar = document.getElementById('inputStandar');
@@ -166,8 +166,8 @@ function updateFormMaal(eventObj) {
   const hasilMal = document.getElementById('hasilMal');
   if (hasilMal) hasilMal.classList.add('hidden');
   
-  if (!eventObj || (eventObj.target && eventObj.target.id === 'jenisMaal')) {
-     if (inputHarta) inputHarta.value = ""; 
+  if (!evt || evt.target?.id === 'jenisMaal') {
+     inputHarta.value = ""; 
   }
 
   // Tampilkan pilihan sub-kategori logam jika zakat emasPerak dipilih
