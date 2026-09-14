@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google-site-verification" content="2SRkA4436CVYVvnVOGsDwcfS3v_fuvMkeQ-DhwFLJok" />
+  <title>Kalkulator Zakat Penyelenggara Zakat & Wakaf Kemenag Kobar</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            poppins: ['Poppins', 'sans-serif'],
+            inter: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="min-h-screen flex flex-col items-center md:items-start justify-center p-4 md:pl-20 lg:pl-32 bg-emerald-900/50 font-inter" id="mainBody">
+
+  <!-- Kontainer Utama Aplikasi -->
+  <div class="bg-white/60 backdrop-blur-md border border-white/30 rounded-2xl shadow-2xl p-5 md:p-6 w-full max-w-md my-8 relative z-10">
+    
+    <div class="text-center mb-6">
+      <img id="logoInstansi" src="Logo_Kemenag.png" alt="Logo Instansi" class="h-20 mx-auto mb-3 object-contain rounded-lg">
+      <h1 class="text-2xl md:text-3xl font-extrabold text-emerald-800 font-poppins">
+        Kalkulator Zakat<br>
+        <span class="text-xl md:text-2xl font-bold">Penzawa Kemenag Kobar</span>
+      </h1>
+      <p class="text-sm text-gray-600 mt-2 font-medium">Hitung Zakat Fitrah & Zakat Maal Anda dengan Mudah</p>
+    </div>
+
+    <!-- Navigasi Tab -->
+    <div class="flex border-b border-gray-200 mb-6 font-poppins">
+      <button id="btnFitrah" onclick="switchTab('fitrah')" class="w-1/2 py-2 px-4 text-center font-semibold text-emerald-600 border-b-2 border-emerald-600 focus:outline-none transition-all duration-300 hover:scale-105">
+        Zakat Fitrah
+      </button>
+      <button id="btnMal" onclick="switchTab('mal')" class="w-1/2 py-2 px-4 text-center font-semibold text-gray-500 hover:text-emerald-600 focus:outline-none transition-all duration-300 hover:scale-105">
+        Zakat Maal
+      </button>
+    </div>
+
+    <!-- TAB ZAKAT FITRAH -->
+    <div id="tabFitrah" class="space-y-4 fade-in">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah Jiwa (Orang)</label>
+        <input type="number" id="jumlahJiwa" min="1" value="1" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all font-medium">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Harga Beras per Kg (Rp)</label>
+        <input type="text" id="hargaBeras" onkeyup="onInputRupiah(this); saveSettings()" placeholder="Contoh: 15.000" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all font-medium">
+        <span class="text-xs text-gray-500 block mt-1">*Dapat disesuaikan manual dengan harga beras yang dikonsumsi sehari-hari</span>
+        <span class="text-xs text-gray-500 block">*Mengikuti madzhab syafi’iyah / Imam Romli (2,7 Kg / Dapat dibayar dengan uang)</span>
+      </div>
+      
+      <div class="flex gap-2 font-poppins mt-2">
+        <button onclick="hitungFitrah()" class="w-2/3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-lg transition-all duration-300 hover:scale-105 shadow-md">
+          Hitung Zakat
+        </button>
+        <button onclick="resetForm()" class="w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2.5 rounded-lg transition-all duration-300 hover:scale-105 shadow-sm">
+          Reset
+        </button>
+      </div>
+
+      <div id="hasilFitrah" class="hidden mt-4 p-4 bg-emerald-50 border border-emerald-200 rounded-lg text-center fade-in">
+        <p class="text-sm text-emerald-800 font-medium">Beras yang harus dikeluarkan:</p>
+        <p id="resBerasKg" class="text-xl font-bold text-emerald-900 my-1 font-poppins">-</p>
+        <p class="text-sm text-emerald-800 font-medium">Atau setara dengan uang:</p>
+        <p id="resBerasRp" class="text-3xl font-extrabold text-emerald-700 my-1 font-poppins">-</p>
+      </div>
+    </div>
+
+    <!-- TAB ZAKAT MAAL -->
+    <div id="tabMal" class="hidden space-y-4 fade-in">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Jenis Zakat Maal</label>
+        <select id="jenisMaal" onchange="updateFormMaal()" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-emerald-50 transition-all font-medium">
+          <option value="emasPerak">🥇 1. Emas dan Perak</option>
+          <option value="perdagangan">⚖️ 2. Perdagangan</option>
+          <option value="pertanian">🌾 3. Pertanian & Perkebunan</option>
+          <option value="simpanan">🏦 4. Simpanan di Lembaga Keuangan</option>
+          <option value="profesi">💼 5. Profesi / Pendapatan</option>
+          <option value="peternakan">🐄 6. Peternakan</option>
+          <option value="temuan">🏺 7. Harta Temuan (Rikaz)</option>
+          <option value="tambang">⛏️ 8. Hasil Tambang</option>
+        </select>
+      </div>
+
+      <div id="wrapperSubLogam" class="space-y-1 fade-in">
+        <label class="block text-sm font-medium text-gray-700">Pilih Jenis Logam Mulia</label>
+        <select id="subLogam" onchange="updateFormMaal()" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-emerald-50 transition-all font-medium">
+          <option value="emas">Emas </option>
+          <option value="perak">Perak </option>
+        </select>
+      </div>
+
+      <div id="wrapperHargaEmas" class="fade-in">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Harga Emas per Gram Saat Ini (Rp)</label>
+        <input type="text" id="hargaEmas" onkeyup="onInputRupiah(this); saveSettings()" placeholder="Contoh: 1.300.000" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all font-medium">
+      </div>
+
+      <div id="wrapperHargaPerak" class="hidden fade-in">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Harga Perak per Gram Saat Ini (Rp)</label>
+        <input type="text" id="hargaPerak" onkeyup="onInputRupiah(this); saveSettings()" placeholder="Contoh: 15.000" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all font-medium">
+      </div>
+
+      <div id="wrapperJenisHewan" class="hidden space-y-1 fade-in">
+        <label class="block text-sm font-medium text-gray-700">Pilih Jenis Hewan Ternak</label>
+        <select id="jenisHewan" onchange="updateFormMaal()" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-emerald-50 transition-all font-medium">
+          <option value="sapi">🐄 Sapi</option>
+          <option value="kambing">🐐 Kambing / Domba</option>
+        </select>
+      </div>
+
+      <div id="inputStandar" class="fade-in">
+        <label id="labelHarta" class="block text-sm font-medium text-gray-700 mb-1">Total Berat Emas (Gram)</label>
+        <input type="number" id="totalHarta" placeholder="Contoh: 100" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all font-medium">
+        <span id="hintHarta" class="text-xs text-gray-500">*Telah mencapai haul 1 tahun</span>
+      </div>
+
+      <div id="inputPertanian" class="hidden space-y-4 fade-in">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Nilai Rupiah Hasil Panen (Rp)</label>
+          <input type="text" id="nilaiPanen" onkeyup="onInputRupiah(this)" placeholder="Contoh: 20.000.000" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all font-medium">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Harga Gabah / Makanan Pokok per Kg (Rp)</label>
+          <input type="text" id="hargaGabah" onkeyup="onInputRupiah(this)" placeholder="Contoh: 6.000" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all font-medium">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Sistem Pengairan</label>
+          <select id="pengairan" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all font-medium">
+            <option value="0.05">Pengairan Buatan / Berbayar (Kadar 5%)</option>
+            <option value="0.10">Pengairan Alami / Tadah Hujan (Kadar 10%)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="flex gap-2 mt-4 font-poppins">
+        <button onclick="hitungMal()" class="w-2/3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-lg transition-all duration-300 hover:scale-105 shadow-md">
+          Hitung Zakat
+        </button>
+        <button onclick="resetForm()" class="w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2.5 rounded-lg transition-all duration-300 hover:scale-105 shadow-sm">
+          Reset
+        </button>
+      </div>
+
+      <!-- HASIL ZAKAT MAAL -->
+      <div id="hasilMal" class="hidden mt-4 p-4 bg-emerald-50 border border-emerald-200 rounded-lg text-center fade-in">
+        <p id="statusNisab" class="text-sm font-semibold mb-1"></p>
+        <p id="resMalRp" class="text-3xl font-extrabold text-emerald-700 my-1 font-poppins">-</p>
+        <p id="detailNisab" class="text-xs text-gray-600 mt-2 font-medium"></p>
+        
+        <!-- TOMBOL BAYAR ZAKAT (Memicu Modal) -->
+        <button id="btnTampilBayar" onclick="bukaOpsiPembayaran()" class="hidden w-full mt-4 bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 rounded-lg transition-all duration-300 shadow-md">
+          💳 Bayar Zakat Sekarang
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODAL / POP-UP PEMBAYARAN -->
+  <!-- ============================================== -->
+  <div id="modalPembayaran" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-gray-900/70 backdrop-blur-sm p-4 fade-in">
+    <!-- Konten Pop-up -->
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 relative animate-[fadeIn_0.3s_ease-out]">
+      
+      <!-- Tombol Tutup (X) -->
+      <button onclick="tutupOpsiPembayaran()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors focus:outline-none">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+      
+      <h3 class="text-xl font-bold text-emerald-800 mb-5 text-center font-poppins border-b pb-3">Pilih Metode Pembayaran</h3>
+      
+      <!-- Pilihan Metode (Awalnya keduanya tidak aktif/berwarna putih) -->
+      <div class="flex gap-2 mb-5 text-sm font-poppins">
+        <button id="btnQris" onclick="togglePaymentMethod('qris')" class="w-1/2 bg-white border border-emerald-600 text-emerald-600 font-semibold py-2 rounded-lg transition-all duration-300">Via QRIS</button>
+        <button id="btnTf" onclick="togglePaymentMethod('transfer')" class="w-1/2 bg-white border border-emerald-600 text-emerald-600 font-semibold py-2 rounded-lg transition-all duration-300">Via Transfer BSI</button>
+      </div>
+      
+      <!-- Tampilan Pembayaran QRIS (Awalnya tersembunyi / hidden) -->
+      <div id="qrisPayment" class="hidden fade-in text-center">
+        <p class="text-sm text-gray-600 mb-3 font-medium">Scan QR Code di bawah menggunakan M-Banking atau E-Wallet:</p>
+        <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 inline-block">
+          <img src="QRIS.jpeg" alt="QRIS Zakat" class="w-full max-w-[200px] mx-auto rounded-lg shadow-sm">
+        </div>
+      </div>
+      
+      <!-- Tampilan Pembayaran Transfer BSI -->
+      <div id="transferPayment" class="hidden fade-in text-center bg-emerald-50 p-5 rounded-xl border border-emerald-100 shadow-inner">
+        <p class="text-sm text-gray-600 mb-2 font-medium">Transfer ke rekening resmi kami:</p>
+        <p class="font-bold text-emerald-900 text-lg mb-2">Bank Syariah Indonesia (BSI)</p>
+        
+        <!-- KOTAK NOMOR REKENING DAN TOMBOL SALIN -->
+        <div class="bg-white p-3 flex items-center justify-between rounded-lg border border-emerald-200 shadow-sm mb-3">
+          <span class="text-lg md:text-xl font-mono font-bold text-gray-800 tracking-wider" id="rekNo">1234 5678 90</span>
+          
+          <button onclick="salinRekening()" id="btnSalin" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 text-xs font-bold py-1.5 px-3 rounded transition-all flex items-center gap-1 focus:outline-none">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+            </svg>
+            <span id="textSalin">Salin</span>
+          </button>
+        </div>
+
+        <p class="text-xs font-bold text-gray-700 uppercase bg-gray-100 py-1.5 rounded">a.n. UPZ Kemenag Kobar</p>
+      </div>
+      
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
