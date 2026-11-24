@@ -1,0 +1,46 @@
+html {
+  font-size: clamp(15px, calc(14px + 0.25vw), 18px);
+}
+
+body {
+  /* Ganti dengan gambar background.jpeg di folder yang sama */
+  background-image: url('background.jpeg'); 
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.ayat-arab {
+  font-size: clamp(1.5rem, 2.2vw, 1.875rem);
+  line-height: 2.2;
+}
+
+/* Scrollbar halus untuk tabel dalil ayat & hadist */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(236, 253, 245, 0.6);
+  border-radius: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(5, 150, 105, 0.45);
+  border-radius: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(5, 150, 105, 0.75);
+}
